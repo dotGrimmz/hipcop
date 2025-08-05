@@ -29,23 +29,20 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+    // Insert into users table
+    const { error: insertError } = await supabaseAdmin.from("users").insert({
+      id: userId,
+      email,
+      role: "user",
+    });
 
-    // Insert profile
-    const { error: profileError } = await supabaseAdmin
-      .from("users")
-      .insert([{ id: userId, email, full_name, role: "user" }]);
-
-    if (profileError) {
-      await supabaseAdmin.auth.admin.deleteUser(userId);
-      return NextResponse.json(
-        { error: profileError.message },
-        { status: 400 }
-      );
+    if (insertError) {
+      return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
     return NextResponse.json(
-      { message: "User created successfully" },
-      { status: 201 }
+      { message: "User signed up successfully" },
+      { status: 200 }
     );
   } catch (error) {
     console.error(error);
