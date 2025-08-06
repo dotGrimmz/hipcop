@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import router from "next/router";
 
 export default function AuthForm() {
   const [supabase, setSupabase] = useState<any>(null);
@@ -34,6 +35,9 @@ export default function AuthForm() {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: { role: "patient" },
+        },
       });
 
       if (error) {
@@ -56,19 +60,30 @@ export default function AuthForm() {
       setMessage("Signup successful! Please check your email to confirm.");
     } else {
       // Sign in user
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
+      console.log(data.user.user_metadata.role, "singed in user");
       if (error) {
         setMessage(error.message);
         return;
       }
-
+      const role = data.user.user_metadata.role;
       setMessage("Signed in successfully!");
 
+      if (role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
+
       // TODO: redirect or reload page
+
+      if (data.user) {
+        console.log("user is populated");
+      }
     }
   };
 

@@ -1,7 +1,7 @@
-import { createSupabaseServerClient } from "./server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function testSupabaseConnection() {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createClient(); // creates the server-side Supabase client with cookies
 
   // Safe table with RLS
   const { data, error } = await supabase
